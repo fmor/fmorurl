@@ -1,0 +1,1 @@
+option( 'fmorurl_build_tests',    type: 'boolean',    value: true,    yield: true )
