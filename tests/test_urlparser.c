@@ -59,6 +59,31 @@ static void test_url_parse( )
     assert( url_str_is_empty( &u.query) );
     assert( url_str_is_empty( &u.fragment) );
 
+    str = " ";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_empty( &u.scheme) );
+    assert( url_str_is_empty( &u.user) );
+    assert( url_str_is_empty( &u.password) );
+    assert( url_str_is_empty( &u.hostname) );
+    assert( url_str_is_empty( &u.port ) );
+    assert( url_str_is_empty( &u.path) );
+    assert( url_str_is_empty( &u.query) );
+    assert( url_str_is_empty( &u.fragment) );
+
+    str = "     ";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_empty( &u.scheme) );
+    assert( url_str_is_empty( &u.user) );
+    assert( url_str_is_empty( &u.password) );
+    assert( url_str_is_empty( &u.hostname) );
+    assert( url_str_is_empty( &u.port ) );
+    assert( url_str_is_empty( &u.path) );
+    assert( url_str_is_empty( &u.query) );
+    assert( url_str_is_empty( &u.fragment) );
 
     // relative
     str = "/";
@@ -547,21 +572,11 @@ static void test_url_parse( )
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str );
     assert( r == url_parse_error_bad_port );
-    /*
-    assert( url_str_is_equal( &u.scheme, "h") );
-    assert( url_str_is_equal( &u.user, "joe@toto") );
-    assert( url_str_is_equal( &u.password, "pass") );
-    assert( url_str_is_equal( &u.hostname, "c") );
-    assert( url_str_is_equal( &u.port, "3333") );
-    assert( url_str_is_equal( &u.path, "/path/to/file.html") );
-    assert( url_str_is_equal( &u.query, "query=param") );
-    assert( url_str_is_equal( &u.fragment, "fragment") );
-    */
 
 
     // README example url
     str = "http://john:doe@example.com:8888/path/to/file.html?param=value#fragment";
-    printf( "[%02d] : Test with '%s'\n", i++, str );
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
     r = url_parse( &u, str );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
@@ -573,8 +588,82 @@ static void test_url_parse( )
     assert( url_str_is_equal( &u.query, "param=value") );
     assert( url_str_is_equal( &u.fragment, "fragment") );
 
-    printf( "\n\n");
 
+    // trailing and leading white spaces
+    str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragment";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_equal( &u.scheme, "http") );
+    assert( url_str_is_equal( &u.user, "john") );
+    assert( url_str_is_equal( &u.password, "doe") );
+    assert( url_str_is_equal( &u.hostname, "example.com") );
+    assert( url_str_is_equal( &u.port, "8888") );
+    assert( url_str_is_equal( &u.path, "/path/to/file.html") );
+    assert( url_str_is_equal( &u.query, "param=value") );
+    assert( url_str_is_equal( &u.fragment, "fragment") );
+
+
+    str = "http://john:doe@example.com:8888/path/to/file.html?param=value#fragment       ";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_equal( &u.scheme, "http") );
+    assert( url_str_is_equal( &u.user, "john") );
+    assert( url_str_is_equal( &u.password, "doe") );
+    assert( url_str_is_equal( &u.hostname, "example.com") );
+    assert( url_str_is_equal( &u.port, "8888") );
+    assert( url_str_is_equal( &u.path, "/path/to/file.html") );
+    assert( url_str_is_equal( &u.query, "param=value") );
+    assert( url_str_is_equal( &u.fragment, "fragment") );
+
+    str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragment      ";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_equal( &u.scheme, "http") );
+    assert( url_str_is_equal( &u.user, "john") );
+    assert( url_str_is_equal( &u.password, "doe") );
+    assert( url_str_is_equal( &u.hostname, "example.com") );
+    assert( url_str_is_equal( &u.port, "8888") );
+    assert( url_str_is_equal( &u.path, "/path/to/file.html") );
+    assert( url_str_is_equal( &u.query, "param=value") );
+    assert( url_str_is_equal( &u.fragment, "fragment") );
+
+
+    str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragm  ent      ";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_equal( &u.scheme, "http") );
+    assert( url_str_is_equal( &u.user, "john") );
+    assert( url_str_is_equal( &u.password, "doe") );
+    assert( url_str_is_equal( &u.hostname, "example.com") );
+    assert( url_str_is_equal( &u.port, "8888") );
+    assert( url_str_is_equal( &u.path, "/path/to/file.html") );
+    assert( url_str_is_equal( &u.query, "param=value") );
+    assert( url_str_is_equal( &u.fragment, "fragm  ent") );
+
+
+
+    str = "  file.txt  ";
+    printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
+    r = url_parse( &u, str );
+    assert( r == url_parse_ok );
+    assert( url_str_is_empty( &u.scheme) );
+    assert( url_str_is_empty( &u.user) );
+    assert( url_str_is_empty( &u.password) );
+    assert( url_str_is_empty( &u.hostname) );
+    assert( url_str_is_empty( &u.port ) );
+    assert( url_str_is_equal( &u.path, "file.txt" ) );
+    assert( url_str_is_empty( &u.query) );
+    assert( url_str_is_empty( &u.fragment) );
+
+
+
+
+
+    printf( "\n\n" );
 }
 
 #define URL_QUERY_MAX_PARAMS    10
@@ -668,14 +757,19 @@ static void test_url_parse_query()
     assert( url_str_is_empty( &params[0].name) );
     assert( url_str_is_equal( &params[0].value, "value=") );
 
-
-
     str = "param=value";
     r = url_parse_query( params, URL_QUERY_MAX_PARAMS, sep, str, strlen(str)  );
     printf( "[%02d] : Test str '%s'\n", i++, str );fflush(stdout);
     assert( r == 1 );
     assert( url_str_is_equal( &params[0].name, "param") );
     assert( url_str_is_equal( &params[0].value,"value") );
+
+    str = "param==value";
+    r = url_parse_query( params, URL_QUERY_MAX_PARAMS, sep, str, strlen(str)  );
+    printf( "[%02d] : Test str '%s'\n", i++, str );fflush(stdout);
+    assert( r == 1 );
+    assert( url_str_is_equal( &params[0].name, "param") );
+    assert( url_str_is_equal( &params[0].value,"=value") );
 
     str = "param=value&";
     r = url_parse_query( params, URL_QUERY_MAX_PARAMS, sep, str, strlen(str)  );

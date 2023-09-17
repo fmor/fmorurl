@@ -32,6 +32,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 int url_parse( struct url* u, const char* str )
 {
@@ -52,19 +53,33 @@ int url_parse( struct url* u, const char* str )
     const char* p;
     char ch;
     enum state st;
+    const char* end;
+    int len;
 
     if( str == NULL )
         return url_parse_error_null;
 
     memset( u, 0, sizeof(struct url) );
 
+    len = strlen(str);
+    if( len == 0 )
+        return url_parse_ok;
+
     err = url_parse_ok;
     p = str;
+    end = str + len;
     st = state_scheme_or_path;
+
+    while( (p < end) && isspace(*p) )
+        ++p;
+
+    while( (end > p) && (isspace( *(end-1) )) )
+        --end;
 
     for(;;)
     {
-        ch = *p;
+        ch = ( p == end ) ? 0 : *p;
+
         switch( st )
         {
             case state_scheme_or_path:
@@ -382,7 +397,7 @@ int url_parse( struct url* u, const char* str )
                 if( ch  )
                 {
                     u->fragment.str = p;
-                    u->fragment.size = strlen(p);
+                    u->fragment.size = end - p;
                 }
                 goto LBL_TERMINATE;
         }
