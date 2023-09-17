@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <urlparser.h>
 
@@ -12,7 +13,7 @@ int main()
 
     const char* url =  "http://john:doe@example.com:8888/path/to/file?param0=value0&param1=value1#fragment";
 
-    r = url_parse( &u, url );
+    r = url_parse( &u, url, strlen(url) );
     if( r != url_parse_ok )
         return -1;
 

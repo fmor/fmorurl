@@ -38,7 +38,7 @@ extern "C" {
 enum url_parse_error
 {
     url_parse_ok = 0,
-    url_parse_error_null,
+    url_parse_error_params,
     url_parse_error_bad_hostname,
     url_parse_error_bad_port,
 };
@@ -73,7 +73,7 @@ struct url
     struct url_str fragment;
 };
 
-int url_parse( struct url* u, const char* str );
+int url_parse( struct url* u, const char* str, int len );
 int url_parse_query( struct url_query_param* params, int params_max, char separator, const char* str, int str_size );
 
 void url_dump( struct url* u, const char* url );

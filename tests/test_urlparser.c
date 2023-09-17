@@ -33,22 +33,30 @@ static void test_url_parse( )
     const char* str;
     int i;
 
-
     printf( "Testing url_parse :\n\n");
 
     i = 1;
 
-    // NULL
+    // Params
+    str = " ";
+    printf( "[%02d] : Test with url == NULL\n", i++ );fflush(stdout);
+    r = url_parse( NULL,  str, strlen(str) );
+    assert( r == url_parse_error_params );
+
     str = NULL;
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
-    assert( r == url_parse_error_null );
+    r = url_parse( &u, str, 1 );
+    assert( r == url_parse_error_params );
 
+    str = " ";
+    printf( "[%02d] : Test with strlen < 0\n", i++ );fflush(stdout);
+    r = url_parse( &u, str, -1 );
+    assert( r == url_parse_error_params );
 
     // empty
     str = "";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -61,7 +69,7 @@ static void test_url_parse( )
 
     str = " ";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -74,7 +82,7 @@ static void test_url_parse( )
 
     str = "     ";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -88,7 +96,7 @@ static void test_url_parse( )
     // relative
     str = "/";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -102,7 +110,7 @@ static void test_url_parse( )
 
     str = "file";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r =  url_parse( &u, str );
+    r =  url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -116,7 +124,7 @@ static void test_url_parse( )
 
     str = "file:///";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "file" ) );
     assert( url_str_is_empty( &u.user) );
@@ -131,7 +139,7 @@ static void test_url_parse( )
 
     str = "file://file.html";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "file" ) );
     assert( url_str_is_empty( &u.user) );
@@ -146,7 +154,7 @@ static void test_url_parse( )
     // path
     str = "mailto:user@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "mailto") );
     assert( url_str_is_empty( &u.user) );
@@ -163,7 +171,7 @@ static void test_url_parse( )
     // query
     str = "?";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -176,7 +184,7 @@ static void test_url_parse( )
 
     str = "??";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -189,7 +197,7 @@ static void test_url_parse( )
 
     str = "?query=param";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -202,7 +210,7 @@ static void test_url_parse( )
 
     str = "?param0=?value0?";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -218,7 +226,7 @@ static void test_url_parse( )
     // fragment
     str = "#";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -231,7 +239,7 @@ static void test_url_parse( )
 
     str = "##fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -244,7 +252,7 @@ static void test_url_parse( )
 
     str = "#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );
@@ -259,7 +267,7 @@ static void test_url_parse( )
     // simple
     str = "http://example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -272,7 +280,7 @@ static void test_url_parse( )
 
     str = "http://example.com/index.html";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -285,7 +293,7 @@ static void test_url_parse( )
 
     str = "http://example.com:8080";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -298,7 +306,7 @@ static void test_url_parse( )
 
     str = "http://example.com:8080/index.html";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -311,7 +319,7 @@ static void test_url_parse( )
 
     str = "http://example.com:8080/index.html?param=value";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -324,7 +332,7 @@ static void test_url_parse( )
 
     str = "http://example.com:8080/index.html?param=value#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -337,7 +345,7 @@ static void test_url_parse( )
 
     str = "http://example.com:8080/index.html#fragment?param=value#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -351,7 +359,7 @@ static void test_url_parse( )
     // userinfo
     str = "http://@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -364,7 +372,7 @@ static void test_url_parse( )
 
     str = "http://user@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "user" ) );
@@ -377,7 +385,7 @@ static void test_url_parse( )
 
     str = "http://user:@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "user" ) );
@@ -390,7 +398,7 @@ static void test_url_parse( )
 
     str = "http://user:pass@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "user" ) );
@@ -403,7 +411,7 @@ static void test_url_parse( )
 
     str = "http://:pass@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -417,7 +425,7 @@ static void test_url_parse( )
 
     str = "http://:@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_empty( &u.user) );
@@ -430,7 +438,7 @@ static void test_url_parse( )
 
     str = "http://user:pass:pas@s2@@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "user" ) );
@@ -445,7 +453,7 @@ static void test_url_parse( )
     // urn
     str = "urn:example:animal:ferret:nose";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "urn") );
     assert( url_str_is_empty( &u.user) );
@@ -461,7 +469,7 @@ static void test_url_parse( )
     // ipv6
     str = "ldap://[2001:db8::7]";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "ldap") );
     assert( url_str_is_empty( &u.user) );
@@ -474,7 +482,7 @@ static void test_url_parse( )
 
     str = "ldap://[2001:db8::7]/c=GB?objectClass?one";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "ldap") );
     assert( url_str_is_empty( &u.user) );
@@ -487,7 +495,7 @@ static void test_url_parse( )
 
     str = "ldap://user@[2001:db8::7]";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "ldap") );
     assert( url_str_is_equal( &u.user, "user") );
@@ -500,7 +508,7 @@ static void test_url_parse( )
 
     str = "ldap://user:@[2001:db8::7]";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "ldap") );
     assert( url_str_is_equal( &u.user, "user") );
@@ -513,7 +521,7 @@ static void test_url_parse( )
 
     str = "ldap://user:pass@[2001:db8::7]";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "ldap") );
     assert( url_str_is_equal( &u.user, "user") );
@@ -526,12 +534,12 @@ static void test_url_parse( )
 
     str = "ldap://[2001:db8::7";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_error_bad_hostname );
 
     str = "ldap://e[2001:db8::@toto.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str));
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "ldap") );
     assert( url_str_is_equal( &u.user, "e[2001") );
@@ -544,19 +552,19 @@ static void test_url_parse( )
 
     str = "ldap://a:b:c:toto.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_error_bad_port );
 
 
     str = "ldap://a[2001:db8:b:c:a:b:d]:toto.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_error_bad_port );
 
 
     str = "mailto:john.doe@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "mailto") );
     assert( url_str_is_empty( &u.user) );
@@ -570,14 +578,14 @@ static void test_url_parse( )
 
     str = "h://joe@toto:pass@c:3333/path/to/file.html?query=param#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_error_bad_port );
 
 
     // README example url
     str = "http://john:doe@example.com:8888/path/to/file.html?param=value#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "john") );
@@ -592,7 +600,7 @@ static void test_url_parse( )
     // trailing and leading white spaces
     str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "john") );
@@ -606,7 +614,7 @@ static void test_url_parse( )
 
     str = "http://john:doe@example.com:8888/path/to/file.html?param=value#fragment       ";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "john") );
@@ -619,7 +627,7 @@ static void test_url_parse( )
 
     str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragment      ";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "john") );
@@ -633,7 +641,7 @@ static void test_url_parse( )
 
     str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragm  ent      ";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_equal( &u.scheme, "http") );
     assert( url_str_is_equal( &u.user, "john") );
@@ -648,7 +656,7 @@ static void test_url_parse( )
 
     str = "  file.txt  ";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
-    r = url_parse( &u, str );
+    r = url_parse( &u, str, strlen(str) );
     assert( r == url_parse_ok );
     assert( url_str_is_empty( &u.scheme) );
     assert( url_str_is_empty( &u.user) );

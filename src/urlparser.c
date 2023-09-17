@@ -34,7 +34,7 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <ctype.h>
 
-int url_parse( struct url* u, const char* str )
+int url_parse( struct url* u, const char* str, int len )
 {
     enum state
     {
@@ -54,14 +54,12 @@ int url_parse( struct url* u, const char* str )
     char ch;
     enum state st;
     const char* end;
-    int len;
 
-    if( str == NULL )
-        return url_parse_error_null;
+    if( (u == NULL) || (str == NULL) || (len < 0) )
+        return url_parse_error_params;
 
     memset( u, 0, sizeof(struct url) );
 
-    len = strlen(str);
     if( len == 0 )
         return url_parse_ok;
 

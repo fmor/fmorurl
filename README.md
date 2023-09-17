@@ -1,10 +1,40 @@
 # fmorurl
 
-C Url parser that does not malloc or modify the supplied string.  
-This library __does not__ support UTF strings.
+C Url parser that does no malloc neither it modify the supplied string. No validation is performed.
+
+
+This library does __NOT__ support UTF strings.
+
 
 ## Parsing url
+
+call __url_parse__ function to fill a an __url__ struct which is defined as follow :
+
 ```C
+
+struct url_str
+{
+    const char* str;
+    int         size;
+};
+
+struct url
+{
+    struct url_str scheme;
+    struct url_str user;
+    struct url_str password;
+    struct url_str hostname;
+    struct url_str port;
+    struct url_str path;
+    struct url_str query;
+    struct url_str fragment;
+};
+```
+
+
+
+```C
+#include <string.h>
 #include <url_parser.h>
 
 int main()
@@ -14,7 +44,7 @@ int main()
 
     const char* url =  "http://john:doe@example.com:8888/path/to/file?param=value#fragment";
 
-    r = url_parse( &u, url );
+    r = url_parse( &u, url, strlen(url) );
     if( r != url_parse_ok )
         return -1;
 
@@ -27,10 +57,19 @@ int main()
 
 ## Parsing url query
 
-Use url_parse_query, it returns the number of key value pairs ( even if one of the two is null ) or < 0 in case of error.
+Use url_parse_query, it fill an array of __url_query_param__ structs and returns the number of key value pairs ( even if one of the two is null ) or < 0 in case of error.
+
+```C
+struct url_query_param
+{
+    struct url_str name;
+    struct url_str value;
+};
+```
 
 ```C
 #include <stdio.h>
+#include <string.h>
 
 #include <urlparser.h>
 
@@ -44,7 +83,7 @@ int main()
 
     const char* url =  "http://john:doe@example.com:8888/path/to/file?param0=value0&param1=value1#fragment";
 
-    r = url_parse( &u, url );
+    r = url_parse( &u, url, strlen(url) );
     if( r != url_parse_ok )
         return -1;
 
