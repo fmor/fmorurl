@@ -25,6 +25,18 @@ static int url_str_is_empty( const struct url_str* s )
     return 1;
 }
 
+static char* _strdup( const char* str )
+{
+    size_t len;
+    char* p;
+    len = strlen( str );
+    ++len;
+    p = malloc( len );
+    if( p )
+        memcpy( p, str, len );
+    return p;
+}
+
 
 static void test_url_parse( )
 {
@@ -37,7 +49,7 @@ static void test_url_parse( )
 
     i = 1;
 
-    // Params
+    /* Params */
     str = " ";
     printf( "[%02d] : Test with url == NULL\n", i++ );fflush(stdout);
     r = url_parse( NULL,  str, strlen(str) );
@@ -53,7 +65,7 @@ static void test_url_parse( )
     r = url_parse( &u, str, -1 );
     assert( r == url_parse_error_params );
 
-    // empty
+    /* empty */
     str = "";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str) );
@@ -93,7 +105,7 @@ static void test_url_parse( )
     assert( url_str_is_empty( &u.query) );
     assert( url_str_is_empty( &u.fragment) );
 
-    // relative
+    /* relative */
     str = "/";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str) );
@@ -151,7 +163,7 @@ static void test_url_parse( )
     assert( url_str_is_empty( &u.fragment) );
 
 
-    // path
+    /* path */
     str = "mailto:user@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str));
@@ -168,7 +180,7 @@ static void test_url_parse( )
 
 
 
-    // query
+    /* query */
     str = "?";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str) );
@@ -223,7 +235,7 @@ static void test_url_parse( )
 
 
 
-    // fragment
+    /* fragment */
     str = "#";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str) );
@@ -264,7 +276,7 @@ static void test_url_parse( )
     assert( url_str_is_equal( &u.fragment, "fragment") );
 
 
-    // simple
+    /* simple */
     str = "http://example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str));
@@ -356,7 +368,7 @@ static void test_url_parse( )
     assert( url_str_is_empty( &u.query) );
     assert( url_str_is_equal( &u.fragment, "fragment?param=value#fragment") );
 
-    // userinfo
+    /* userinfo */
     str = "http://@example.com";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str));
@@ -450,7 +462,7 @@ static void test_url_parse( )
     assert( url_str_is_empty( &u.fragment) );
 
 
-    // urn
+    /* urn */
     str = "urn:example:animal:ferret:nose";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str) );
@@ -466,7 +478,7 @@ static void test_url_parse( )
 
 
 
-    // ipv6
+    /* ipv6 */
     str = "ldap://[2001:db8::7]";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush(stdout);
     r = url_parse( &u, str, strlen(str));
@@ -582,7 +594,7 @@ static void test_url_parse( )
     assert( r == url_parse_error_bad_port );
 
 
-    // README example url
+    /* README example url */
     str = "http://john:doe@example.com:8888/path/to/file.html?param=value#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
     r = url_parse( &u, str, strlen(str) );
@@ -597,7 +609,7 @@ static void test_url_parse( )
     assert( url_str_is_equal( &u.fragment, "fragment") );
 
 
-    // trailing and leading white spaces
+    /* trailing and leading white spaces */
     str = "   http://john:doe@example.com:8888/path/to/file.html?param=value#fragment";
     printf( "[%02d] : Test with '%s'\n", i++, str );fflush( stdout );
     r = url_parse( &u, str, strlen(str) );
@@ -668,7 +680,22 @@ static void test_url_parse( )
     assert( url_str_is_empty( &u.fragment) );
 
 
-
+    char* _str = _strdup( "#fragment    ");
+    assert( _str != NULL );
+    int len = strlen(_str);
+    _str[strlen("#fragment") + 2 ] = 0;
+    printf( "[%02d] : Test with '#fragme' 0 't     '  \n", i++ );fflush( stdout );
+    r = url_parse( &u, _str, len );
+    assert( r == url_parse_ok );
+    assert( url_str_is_empty( &u.scheme) );
+    assert( url_str_is_empty( &u.user) );
+    assert( url_str_is_empty( &u.password) );
+    assert( url_str_is_empty( &u.hostname) );
+    assert( url_str_is_empty( &u.port ) );
+    assert( url_str_is_empty( &u.path ) );
+    assert( url_str_is_empty( &u.query) );
+    assert( url_str_is_equal( &u.fragment, "fragment") );
+    free( _str );
 
 
     printf( "\n\n" );
@@ -688,7 +715,7 @@ static void test_url_parse_query()
     i = 0;
     sep = '&';
 
-    // params
+    /* params */
     str = "query";
     r = url_parse_query( NULL, URL_QUERY_MAX_PARAMS, sep, str, strlen(str) );
     printf( "[%02d] : Test params == NUL\n", i++ ); fflush(stdout);

@@ -71,7 +71,7 @@ int url_parse( struct url* u, const char* str, int len )
     while( (p < end) && isspace(*p) )
         ++p;
 
-    while( (end > p) && (isspace( *(end-1) )) )
+    while( (end > p) && ( isspace(*(end-1)) || (*(end-1) == 0) ))
         --end;
 
     for(;;)
@@ -395,6 +395,7 @@ int url_parse( struct url* u, const char* str, int len )
                 if( ch  )
                 {
                     u->fragment.str = p;
+
                     u->fragment.size = end - p;
                 }
                 goto LBL_TERMINATE;
@@ -403,7 +404,7 @@ int url_parse( struct url* u, const char* str, int len )
     }
 
 LBL_TERMINATE:
-//    url_dump( u , str);
+/*    url_dump( u , str); */
     return err;
 }
 
@@ -505,8 +506,9 @@ void url_dump( struct url* u, const char* url)
 void url_dump_query_params( struct url_query_param* params, int params_count )
 {
    struct url_query_param* p;
+   int i;
 
-   for( int i = 0; i < params_count; ++i )
+   for( i = 0; i < params_count; ++i )
    {
         p = &params[i];
         printf( "[%02d] : '%.*s'='%.*s'\n", i, p->name.size, p->name.str, p->value.size, p->value.str  );

@@ -1,6 +1,6 @@
 # fmorurl
 
-C Url parser that does no malloc neither it modify the supplied string. No validation is performed.
+C89 Url parser that does no malloc neither it modify the supplied string. No validation is performed.
 
 
 This library does __NOT__ support UTF strings.

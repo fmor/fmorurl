@@ -20,7 +20,7 @@ int main()
     url_dump( &u, url );
 
 
-    // query
+    /* query */
     printf( "url query params : '%.*s'\n", u.query.size, u.query.str );
     r = url_parse_query( params, QUERY_PARAMS_MAX, '&', u.query.str, u.query.size );
     if( r < 0 )
@@ -28,7 +28,7 @@ int main()
 
     url_dump_query_params( params, r );
 
-    // query parse : supplied array too small
+    /* query parse : supplied array too small */
     printf( "url query params : '%.*s'\n", u.query.size, u.query.str );
     r = url_parse_query( params, 1 , '&', u.query.str, u.query.size );
     if( r == url_parse_query_error_params_count )
